@@ -8,7 +8,7 @@
     "start": "node index.js",
     "setup": "node setup-database.js",
     "deploy:contract": "node scripts/deploy-land-registry.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,9 @@
     "ethers": "^6.16.0",
     "express": "^5.2.1",
     "pg": "^8.20.0",
-    "solc": "^0.8.30"
+    "solc": "^0.8.30",
+    "bcryptjs": "^2.4.3",
+    "helmet": "^8.1.0",
+    "express-rate-limit": "^7.5.0"
   }
 }

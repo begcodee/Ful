@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import pool from "../config/db.js";
 import { parseDbId, serializeUser } from "../utils/serializers.js";
 
@@ -13,6 +14,8 @@ const buildDefaultProfile = ({ phoneNumber, country, nationalId }) => ({
   bio: "",
   avatar: "",
 });
+
+const SALT_ROUNDS = 12;
 
 const buildDefaultReputation = () => ({
   score: 50,
@@ -58,19 +61,27 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const result = await pool.query(
-      `UPDATE users
-       SET last_active = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-       WHERE email = $1 AND password = $2
-       RETURNING *`,
-      [email, password]
-    );
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
 
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    res.json(serializeUser(result.rows[0]));
+    const user = result.rows[0];
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const updateResult = await pool.query(
+      `UPDATE users
+       SET last_active = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1
+       RETURNING *`,
+      [user.id]
+    );
+
+    res.json(serializeUser(updateResult.rows[0]));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to log in" });
@@ -128,7 +139,7 @@ export const createUser = async (req, res) => {
       [
         name || full_name,
         email,
-        password,
+        await bcrypt.hash(password, SALT_ROUNDS),
         nationalId,
         role,
         verificationStatus,
