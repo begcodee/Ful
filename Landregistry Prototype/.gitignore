@@ -1,0 +1,37 @@
+# Dependencies & builds
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+dist-ssr/
+build/
+**/build/
+out/
+coverage/
+*.local
+
+# Secrets — never commit
+.env
+**/.env
+.env.*
+!.env.example
+
+# Logs & caches
+*.log
+npm-debug.log*
+.yarn/
+.vite_opt_cache/
+.temp/
+*.tmp
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Misc
+.storage/
+*.coverage
+__pycache__/
